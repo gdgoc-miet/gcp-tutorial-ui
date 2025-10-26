@@ -48,12 +48,12 @@ export function AppSidebar({
                   onClick={() => onSelectLesson(lesson)}
                   isActive={selectedLesson.id === lesson.id}
                   tooltip={{
-                    children: lesson.details.title,
+                    children: lesson.details.sidebarTitle || lesson.details.title,
                     side: "right",
                     align: "center",
                   }}
                 >
-                  <span>{lesson.details.title}</span>
+                  <span>{lesson.details.sidebarTitle || lesson.details.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

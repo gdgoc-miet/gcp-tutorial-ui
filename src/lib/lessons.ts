@@ -11,6 +11,15 @@ export async function getLessons(): Promise<Lesson[]> {
     const lessons: Lesson[] = await Promise.all(
       lessonFolders
         .filter((dirent) => dirent.isDirectory())
+        .sort((a, b) => {
+          // Numeric sort for folder names
+          const numA = parseInt(a.name, 10);
+          const numB = parseInt(b.name, 10);
+          if (!isNaN(numA) && !isNaN(numB)) {
+            return numA - numB;
+          }
+          return a.name.localeCompare(b.name);
+        })
         .map(async (dirent) => {
           const lessonId = dirent.name;
           const notesPath = path.join(contentDirectory, lessonId, 'notes.md');

@@ -1,5 +1,6 @@
 export interface LessonDetails {
   title: string;
+  sidebarTitle?: string;
   videoId: string;
   description?: string;
 }
