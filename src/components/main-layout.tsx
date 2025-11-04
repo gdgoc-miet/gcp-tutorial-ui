@@ -10,6 +10,7 @@ import {
 import { AppSidebar } from "./app-sidebar";
 import { MarkdownNotes } from "./markdown-notes";
 import { VideoPlayer } from "./video-player";
+import { FeedbackSection } from "./feedback-section";
 import {
   Card,
   CardContent,
@@ -18,6 +19,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 
 type MainLayoutProps = {
   lessons: Lesson[];
@@ -47,9 +49,12 @@ export default function MainLayout({ lessons }: MainLayoutProps) {
         onSelectLesson={setSelectedLesson}
       />
       <SidebarInset className="flex min-h-screen flex-1 flex-col bg-background">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger />
+        </header>
         <main className="flex flex-1 min-h-0 flex-col gap-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-          <div className="grid flex-1 min-h-0 gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(22rem,1fr)]">
-            <div className="flex min-h-0 min-w-0 flex-col gap-6">
+          <PanelGroup direction="horizontal" className="flex-1 min-h-0 gap-6">
+            <Panel defaultSize={62} minSize={30} className="flex min-h-0 min-w-0 flex-col gap-6">
               <VideoPlayer videoId={selectedLesson.details.videoId} />
               <Card>
                 <CardHeader className="space-y-3">
@@ -66,18 +71,23 @@ export default function MainLayout({ lessons }: MainLayoutProps) {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-            <div className="flex min-h-0 min-w-0 flex-col">
-              <Card className="flex h-full min-h-0 flex-col">
+              <FeedbackSection
+                lessonId={selectedLesson.id}
+                lessonTitle={selectedLesson.details.title}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1 bg-border hover:bg-primary/50 transition-colors" />
+            <Panel defaultSize={38} minSize={22} className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+              <Card className="flex h-full min-h-0 flex-col overflow-hidden">
                 <CardHeader></CardHeader>
                 <CardContent className="flex-1 overflow-hidden min-h-0">
-                  <ScrollArea className="h-full pr-4">
+                  <ScrollArea className="h-full w-full pr-4">
                     <MarkdownNotes notes={selectedLesson.notes} />
                   </ScrollArea>
                 </CardContent>
               </Card>
-            </div>
-          </div>
+            </Panel>
+          </PanelGroup>
         </main>
       </SidebarInset>
     </SidebarProvider>
