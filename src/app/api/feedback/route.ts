@@ -1,31 +1,40 @@
-import { kv } from "@vercel/kv";
+import { put, list } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
-// Check if KV is configured
-function isKVConfigured() {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+// Check if Blob is configured
+function isBlobConfigured() {
+  return !!process.env.BLOB_READ_WRITE_TOKEN;
 }
 
-async function getFeedbackKey(lessonId: string, userIp: string) {
-  return `feedback:${lessonId}:${userIp}`;
+// Generate a unique filename for each feedback
+function getFeedbackFilename(lessonId: string, userIp: string) {
+  const hash = crypto.createHash("md5").update(userIp).digest("hex").slice(0, 8);
+  return `feedback/${lessonId}/${hash}.json`;
 }
 
 async function checkIfAlreadyVoted(lessonId: string, userIp: string) {
-  if (!isKVConfigured()) return false;
-  const key = await getFeedbackKey(lessonId, userIp);
-  const existingVote = await kv.get(key);
-  return existingVote !== null;
+  if (!isBlobConfigured()) return false;
+  
+  try {
+    const filename = getFeedbackFilename(lessonId, userIp);
+    const { blobs } = await list({ prefix: filename });
+    return blobs.length > 0;
+  } catch (err) {
+    console.error("Error checking vote:", err);
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if KV is configured
-    if (!isKVConfigured()) {
-      console.warn("Vercel KV not configured. Feedback will not be saved.");
+    // Check if Blob is configured
+    if (!isBlobConfigured()) {
+      console.warn("Vercel Blob not configured. Feedback will not be saved.");
       return NextResponse.json(
         { 
           error: "Feedback service not configured",
-          message: "KV database not set up. Please configure Vercel KV."
+          message: "Blob storage not set up. Please configure Vercel Blob."
         },
         { status: 503 }
       );
@@ -59,22 +68,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store feedback in Vercel KV
-    const feedbackKey = await getFeedbackKey(lessonId, userIp);
+    // Store feedback in Vercel Blob
+    const filename = getFeedbackFilename(lessonId, userIp);
     const feedbackData = {
-      type,
+      lessonId,
       lessonTitle,
+      type,
       timestamp,
       userIp,
     };
 
-    // Store with 1 year expiry
-    await kv.set(feedbackKey, JSON.stringify(feedbackData), {
-      ex: 365 * 24 * 60 * 60,
+    await put(filename, JSON.stringify(feedbackData), {
+      access: "public",
+      addRandomSuffix: false,
     });
-
-    // Also store for analytics/counting purposes
-    await kv.incr(`feedback:count:${lessonId}:${type}`);
 
     return NextResponse.json(
       { message: "Feedback saved successfully" },
@@ -92,18 +99,23 @@ export async function POST(request: NextRequest) {
 // GET endpoint to retrieve all feedback (for admin/analytics)
 export async function GET() {
   try {
-    const allKeys = await kv.keys("feedback:*");
+    if (!isBlobConfigured()) {
+      return NextResponse.json(
+        { error: "Blob storage not configured" },
+        { status: 503 }
+      );
+    }
+
+    const { blobs } = await list({ prefix: "feedback/" });
     const feedback = [];
 
-    for (const key of allKeys) {
-      const data = await kv.get(key);
-      if (data) {
-        const [_, lessonId, userIp] = key.split(":");
-        feedback.push({
-          lessonId,
-          userIp,
-          ...JSON.parse(data as string),
-        });
+    for (const blob of blobs) {
+      try {
+        const response = await fetch(blob.url);
+        const data = await response.json();
+        feedback.push(data);
+      } catch (err) {
+        console.error(`Failed to fetch blob ${blob.pathname}:`, err);
       }
     }
 

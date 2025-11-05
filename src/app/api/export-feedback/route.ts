@@ -1,36 +1,37 @@
-import { kv } from "@vercel/kv";
+import { list } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
-// Check if KV is configured
-function isKVConfigured() {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+// Check if Blob is configured
+function isBlobConfigured() {
+  return !!process.env.BLOB_READ_WRITE_TOKEN;
 }
 
 export async function GET() {
   try {
-    if (!isKVConfigured()) {
+    if (!isBlobConfigured()) {
       return NextResponse.json(
-        { error: "KV database not configured" },
+        { error: "Blob storage not configured" },
         { status: 503 }
       );
     }
 
-    const allKeys = await kv.keys("feedback:*");
+    const { blobs } = await list({ prefix: "feedback/" });
     const feedback = [];
 
     // Retrieve all feedback data
-    for (const key of allKeys) {
-      const data = await kv.get(key);
-      if (data) {
-        const [_, lessonId, userIp] = key.split(":");
-        const parsedData = JSON.parse(data as string);
+    for (const blob of blobs) {
+      try {
+        const response = await fetch(blob.url);
+        const data = await response.json();
         feedback.push({
-          timestamp: parsedData.timestamp,
-          lessonId,
-          lessonTitle: parsedData.lessonTitle,
-          feedbackType: parsedData.type,
-          userIp,
+          timestamp: data.timestamp,
+          lessonId: data.lessonId,
+          lessonTitle: data.lessonTitle,
+          feedbackType: data.type,
+          userIp: data.userIp,
         });
+      } catch (err) {
+        console.error(`Failed to fetch blob ${blob.pathname}:`, err);
       }
     }
 
