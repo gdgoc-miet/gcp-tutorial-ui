@@ -1,0 +1,2 @@
+# Exclude GitHub Pages redirect page from Vercel
+public/index.html
