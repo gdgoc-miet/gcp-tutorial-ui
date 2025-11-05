@@ -1,11 +1,17 @@
 import { kv } from "@vercel/kv";
 import { NextRequest, NextResponse } from "next/server";
 
+// Check if KV is configured
+function isKVConfigured() {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
 async function getFeedbackKey(lessonId: string, userIp: string) {
   return `feedback:${lessonId}:${userIp}`;
 }
 
 async function checkIfAlreadyVoted(lessonId: string, userIp: string) {
+  if (!isKVConfigured()) return false;
   const key = await getFeedbackKey(lessonId, userIp);
   const existingVote = await kv.get(key);
   return existingVote !== null;
@@ -13,6 +19,18 @@ async function checkIfAlreadyVoted(lessonId: string, userIp: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if KV is configured
+    if (!isKVConfigured()) {
+      console.warn("Vercel KV not configured. Feedback will not be saved.");
+      return NextResponse.json(
+        { 
+          error: "Feedback service not configured",
+          message: "KV database not set up. Please configure Vercel KV."
+        },
+        { status: 503 }
+      );
+    }
+
     const body = await request.json();
 
     const { lessonId, lessonTitle, type, userIp, timestamp } = body;

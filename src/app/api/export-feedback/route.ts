@@ -1,8 +1,20 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 
+// Check if KV is configured
+function isKVConfigured() {
+  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
 export async function GET() {
   try {
+    if (!isKVConfigured()) {
+      return NextResponse.json(
+        { error: "KV database not configured" },
+        { status: 503 }
+      );
+    }
+
     const allKeys = await kv.keys("feedback:*");
     const feedback = [];
 
