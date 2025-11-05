@@ -1,2 +1,5 @@
 # Exclude GitHub Pages redirect page from Vercel
 public/index.html
+
+# Exclude legacy feedback directory
+public/feedback/
