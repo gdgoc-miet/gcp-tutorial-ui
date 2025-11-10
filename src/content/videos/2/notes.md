@@ -11,3 +11,5 @@
 
 ## Link to Course Syllabus
 [link to Syllabus](https://docs.google.com/spreadsheets/d/e/2PACX-1vRB406SGkUY4Q5jRqYBSZqRGfsK6MsESzdtbHaoXnYT3isC2CcBFrloYq3gcO61Gbw58qSw9RB4FXoM/pubhtml?gid=0&single=true)
+
+> Please run option 2 as well as 3 in the script 
