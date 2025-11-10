@@ -1,10 +1,9 @@
 import type { LessonDetails } from '@/lib/types';
 
 export const details: LessonDetails = {
-  title: 'Create a virtual machine',
-  sidebarTitle : 'Lab 1.1',
-  videoId: 'b0yr2wt1tNU',
-
+  title: 'Challange lab ',
+  sidebarTitle : "Lab 1.4",
+  videoId: 'm65CjRbphYc',
   description:
-    'Hands on lab on how to create a Google Compute Engine virtual machine  ',
+    'This challange lab test your skills and knowledge from the previous labs  ',
 };

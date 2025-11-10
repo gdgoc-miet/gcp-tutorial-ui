@@ -1,9 +1,9 @@
 import type { LessonDetails } from '@/lib/types';
 
 export const details: LessonDetails = {
-  title: 'Challange lab ',
-  sidebarTitle : "Lab 1.4",
-  videoId: 'm65CjRbphYc',
-  description:
-    'This challange lab test your skills and knowledge from the previous labs  ',
+  title: 'Challange lab',
+  sidebarTitle: 'Lab 3.3',
+  videoId: 'rIEQsK1cGX0',
+  description: `Challange lab to test your understanding `,
 };
+
