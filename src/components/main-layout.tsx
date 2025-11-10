@@ -29,10 +29,36 @@ type MainLayoutProps = {
 export default function MainLayout({ lessons }: MainLayoutProps) {
   const initialLesson = useMemo(() => lessons?.[0] ?? null, [lessons]);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(initialLesson);
+  const [sidebarWidth, setSidebarWidth] = useState(256);
 
   useEffect(() => {
     setSelectedLesson(initialLesson);
   }, [initialLesson]);
+
+  useEffect(() => {
+    // Calculate sidebar width based on lesson titles
+    if (typeof window !== "undefined" && lessons.length > 0) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.font = "11px Inter, sans-serif";
+        
+        const titles = lessons.map(
+          (lesson) => lesson.details.sidebarTitle || lesson.details.title
+        );
+        
+        let maxWidth = 0;
+        titles.forEach((title) => {
+          const metrics = context.measureText(title);
+          maxWidth = Math.max(maxWidth, metrics.width);
+        });
+        
+        const calculatedWidth = Math.ceil(maxWidth + 80);
+        const finalWidth = Math.max(200, Math.min(calculatedWidth, 400));
+        setSidebarWidth(finalWidth);
+      }
+    }
+  }, [lessons]);
 
   if (!selectedLesson) {
     return (
@@ -43,7 +69,7 @@ export default function MainLayout({ lessons }: MainLayoutProps) {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ "--sidebar-width": `${sidebarWidth}px` } as React.CSSProperties}>
       <AppSidebar
         lessons={lessons}
         selectedLesson={selectedLesson}
@@ -52,8 +78,8 @@ export default function MainLayout({ lessons }: MainLayoutProps) {
       <SidebarInset className="flex min-h-screen flex-1 flex-col bg-background">
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
-          <Button variant="link" asChild className="flex">
-            <a href="https://example.com">
+          <Button variant="link" asChild className="flex ml-auto">
+            <a href="https://leaderboard-google-cloud-study-jams-2025-26.vercel.app/">
               Stats Dashboard
             </a>
           </Button>
