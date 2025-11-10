@@ -1,9 +1,10 @@
 import type { LessonDetails } from '@/lib/types';
 
 export const details: LessonDetails = {
-  title: 'Challange lab ',
-  sidebarTitle : "Lab 1.4",
-  videoId: 'm65CjRbphYc',
+  title: 'Claim Your Arcade Slot',
+  // sidebarTitle : "",
+  videoId: 'yHQ-ai9a_7g',
   description:
-    'This challange lab test your skills and knowledge from the previous labs  ',
+    'Learn about Arcade and how to claim your Arcade slot for this event',
 };
+

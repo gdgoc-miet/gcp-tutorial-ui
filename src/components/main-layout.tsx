@@ -20,6 +20,7 @@ import {
 } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
+import { Button } from "./ui/button";
 
 type MainLayoutProps = {
   lessons: Lesson[];
@@ -51,6 +52,11 @@ export default function MainLayout({ lessons }: MainLayoutProps) {
       <SidebarInset className="flex min-h-screen flex-1 flex-col bg-background">
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger />
+          <Button variant="link" asChild className="flex">
+            <a href="https://example.com">
+              Stats Dashboard
+            </a>
+          </Button>
         </header>
         <main className="flex flex-1 min-h-0 flex-col gap-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           <PanelGroup direction="horizontal" className="flex-1 min-h-0 gap-6">

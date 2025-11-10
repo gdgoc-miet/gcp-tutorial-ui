@@ -45,7 +45,7 @@ export function AppSidebar({
       const context = canvas.getContext("2d");
       if (context) {
         // Use the same font as the sidebar buttons
-        context.font = "14px Inter, sans-serif";
+        context.font = "11px Inter, sans-serif";context.font = "11px Inter, sans-serif";
         
         const titles = lessons.map(
           (lesson) => lesson.details.sidebarTitle || lesson.details.title
